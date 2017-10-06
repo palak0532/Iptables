@@ -1,0 +1,30 @@
+Step 1. Allow all incoming and outgoing activities
+
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+
+
+
+Step2. Set up shh specific rules
+
+iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT                         #this allows all incoming ssh connections
+iptables -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT  #this allows all outgoing ssh connections
+
+Step 3. Now while denying outgoing shh connection we tend to lock ourselves from the system and if by any chance we do not have the console access it become difficult to get the VM back
+So be careful and always use the following so that we do not lock ourself. 
+
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+
+At that point you should be able to ssh but nothing else in or out. Make sure that you still have the ssh, that you can drop 
+your ssh connection and create a new one and that you can't get in or out otherwise.
+(ping & telnet commands useful for those tests)
+
+
+Step3. Now allow ssh on to the specific ip addresses you want. 
+
+iptables -A OUTPUT  -p tcp -d x.x.x.x/32 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+
+The subnet mask depends on your requirement. I am implementing it for specifi ips hence used /32. you can choose /24, /16 etc as per requirement. 
+
